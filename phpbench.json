@@ -1,0 +1,21 @@
+{
+  "$schema":"./vendor/phpbench/phpbench/phpbench.schema.json",
+  "runner.bootstrap": "vendor/autoload.php",
+  "runner.path": "bench",
+  "runner.php_disable_ini": true,
+  "report.generators": {
+    "micro-compare": {
+      "generator": "expression",
+      "cols": {
+        "benchmark": null,
+        "subject": null,
+        "mean": null,
+        "revs": null,
+        "total": null
+      },
+      "expressions": {
+        "total": "sum(result_time_net) as seconds"
+      }
+    }
+  }
+}
