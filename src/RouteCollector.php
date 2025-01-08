@@ -11,6 +11,13 @@ use Brickhouse\Routing\Exceptions\RouteArgumentException;
 class RouteCollector
 {
     /**
+     * Gets the parser to parse routes.
+     *
+     * @var RouteParser
+     */
+    protected readonly RouteParser $routeParser;
+
+    /**
      * Gets all the static routes in the collector.
      *
      * @var StaticRoutes
@@ -24,9 +31,10 @@ class RouteCollector
      */
     protected array $dynamicRoutes = [];
 
-    public function __construct(
-        protected readonly RouteParser $routeParser,
-    ) {}
+    public function __construct(null|RouteParser $routeParser = null)
+    {
+        $this->routeParser = $routeParser ?? new RouteParser();
+    }
 
     /**
      * Gets all the static routes on the collector.
@@ -60,11 +68,6 @@ class RouteCollector
      */
     public function addRoute(string|array $methods, string $route, mixed $handler, array $constraints = []): void
     {
-        // Remove trailing slashes
-        if ($route !== '/' && str_ends_with($route, '/')) {
-            $route = rtrim($route, '/');
-        }
-
         $routeTemplates = $this->routeParser->parse($route);
 
         if (is_string($methods)) {

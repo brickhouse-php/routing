@@ -11,64 +11,64 @@ function parse(string $route): array
 describe('RouteParser', function () {
     it('yields static route given static route')
         ->expect(fn() => parse("/static"))
-        ->toEqual([['/static']]);
+        ->toEqual([['/static/']]);
 
     it('yields expanded argument')
         ->expect(fn() => parse("/:param"))
-        ->toEqual([['/', ['param' => '[^/]+']]]);
+        ->toEqual([['/', ['param' => '[^/]+'], '/']]);
 
     it('yields expanded wildcard argument')
         ->expect(fn() => parse("/*param"))
-        ->toEqual([['/', ['param' => '.*']]]);
+        ->toEqual([['/', ['param' => '.*'], '/']]);
 
     it('yields multiple expanded arguments')
         ->expect(fn() => parse("/:param1/:param2"))
-        ->toEqual([['/', ['param1' => '[^/]+'], '/', ['param2' => '[^/]+']]]);
+        ->toEqual([['/', ['param1' => '[^/]+'], '/', ['param2' => '[^/]+'], '/']]);
 
     it('yields expanded arguments with statics')
         ->expect(fn() => parse("/user/:id/items/:item"))
-        ->toEqual([['/user/', ['id' => '[^/]+'], '/items/', ['item' => '[^/]+']]]);
+        ->toEqual([['/user/', ['id' => '[^/]+'], '/items/', ['item' => '[^/]+'], '/']]);
 
     it('allows underscores in argument names')
         ->expect(fn() => parse("/:user_id"))
-        ->toEqual([['/', ['user_id' => '[^/]+']]]);
+        ->toEqual([['/', ['user_id' => '[^/]+'], '/']]);
 
     it('disallows hyphens in argument names', fn() => parse('/:user-id'))
         ->throws(RouteArgumentException::class);
 
     it('allows tildes in segments')
         ->expect(fn() => parse("/~/:channel_id"))
-        ->toEqual([['/~/', ['channel_id' => '[^/]+']]]);
+        ->toEqual([['/~/', ['channel_id' => '[^/]+'], '/']]);
 
     it('allows routes after arguments')
         ->expect(fn() => parse("/:user_id/posts"))
-        ->toEqual([['/', ['user_id' => '[^/]+'], '/posts']]);
+        ->toEqual([['/', ['user_id' => '[^/]+'], '/posts/']]);
 
     it('yields available routes given optional argument')
         ->expect(fn() => parse("/:?slug"))
         ->toEqual([
             ['/'],
-            ['/', ['slug' => '[^/]+']]
+            ['/', ['slug' => '[^/]+'], '/']
         ]);
 
     it('yields available routes given multiple optional arguments')
         ->expect(fn() => parse("/fixed/:var1/:?var2"))
         ->toEqual([
             ['/fixed/', ['var1' => '[^/]+'], '/'],
-            ['/fixed/', ['var1' => '[^/]+'], '/', ['var2' => '[^/]+']]
+            ['/fixed/', ['var1' => '[^/]+'], '/', ['var2' => '[^/]+'], '/']
         ]);
 
     it('yields available routes given optional argument before statics')
         ->expect(fn() => parse("/posts/:?slug/view"))
         ->toEqual([
-            ['/posts/view'],
-            ['/posts/', ['slug' => '[^/]+'], '/view'],
+            ['/posts/view/'],
+            ['/posts/', ['slug' => '[^/]+'], '/view/'],
         ]);
 
     it('allows routes after optional arguments')
         ->expect(fn() => parse("/:?user_id/posts"))
         ->toEqual([
-            ['/posts'],
-            ['/', ['user_id' => '[^/]+'], '/posts'],
+            ['/posts/'],
+            ['/', ['user_id' => '[^/]+'], '/posts/'],
         ]);
 });

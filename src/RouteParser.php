@@ -17,6 +17,11 @@ class RouteParser
      */
     public function parse(string $route): array
     {
+        // Add trailing slashes
+        if (!str_ends_with($route, '/')) {
+            $route .= '/';
+        }
+
         if (!preg_match_all(self::ROUTE_PATTERN, $route, $matches, PREG_OFFSET_CAPTURE)) {
             return [[$route]];
         }

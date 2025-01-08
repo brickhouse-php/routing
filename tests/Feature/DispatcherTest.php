@@ -103,6 +103,18 @@ describe('Dispatcher', function () {
         expect($route)->toBeNull();
     });
 
+    it('returns missing argument given optional parameter without value', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/user/:?id', '');
+        $route = $dispatcher->dispatch('GET', '/user');
+
+        expect($route)->not->toBeNull();
+        expect($route[1])->not->toHaveKey('id');
+    });
+
     it('returns dynamic route with matching trailing slash', function () {
         $parser = new RouteParser;
         $collector = new RouteCollector($parser);
@@ -191,5 +203,41 @@ describe('Dispatcher', function () {
 
         expect($route)->not->toBeNull();
         expect($route[1])->toMatchArray(['slug' => '2025/01/08/post-title']);
+    });
+
+    it('returns argument value given optional wildcard argument with value', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/posts/*?slug', '');
+        $route = $dispatcher->dispatch('GET', '/posts/a');
+
+        expect($route)->not->toBeNull();
+        expect($route[1])->toMatchArray(['slug' => 'a']);
+    });
+
+    it('returns argument value given optional wildcard argument with multi-segment value', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/posts/*?slug', '');
+        $route = $dispatcher->dispatch('GET', '/posts/a/b/c');
+
+        expect($route)->not->toBeNull();
+        expect($route[1])->toMatchArray(['slug' => 'a/b/c']);
+    });
+
+    it('returns missing value given optional wildcard argument without value', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/posts/*?slug', '');
+        $route = $dispatcher->dispatch('GET', '/posts');
+
+        expect($route)->not->toBeNull();
+        expect($route[1])->not->toHaveKey('slug');
     });
 })->group('dispatcher');
