@@ -135,4 +135,26 @@ describe('Dispatcher', function () {
 
         expect($route)->toBeNull();
     });
+
+    it('returns static route given route with wildcard method', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('*', '/', '');
+        $route = $dispatcher->dispatch('POST', '/');
+
+        expect($route)->not->toBeNull();
+    });
+
+    it('returns dynamic route given route with wildcard method', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('*', '/users/:id/', '');
+        $route = $dispatcher->dispatch('GET', '/users/1');
+
+        expect($route)->not->toBeNull();
+    });
 })->group('dispatcher');

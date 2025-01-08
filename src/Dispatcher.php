@@ -32,10 +32,21 @@ class Dispatcher
             return [$staticRoutes[$method][$uri], []];
         }
 
+        if (isset($staticRoutes['*'][$uri])) {
+            return [$staticRoutes['*'][$uri], []];
+        }
+
         $dynamicRoutes = $this->routeCollector->dynamic();
+
         if (isset($dynamicRoutes[$method])) {
             $dispatchedRoute = $this->dispatchDynamic($dynamicRoutes[$method], $uri);
+            if ($dispatchedRoute !== null) {
+                return $dispatchedRoute;
+            }
+        }
 
+        if (isset($dynamicRoutes['*'])) {
+            $dispatchedRoute = $this->dispatchDynamic($dynamicRoutes['*'], $uri);
             if ($dispatchedRoute !== null) {
                 return $dispatchedRoute;
             }
