@@ -157,4 +157,28 @@ describe('Dispatcher', function () {
 
         expect($route)->not->toBeNull();
     });
+
+    it('returns all segments in wildcard argument', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('*', '/posts/*slug/', '');
+        $route = $dispatcher->dispatch('GET', '/posts/2025/01/08/post-title');
+
+        expect($route)->not->toBeNull();
+        expect($route[1])->toMatchArray(['slug' => '2025/01/08/post-title']);
+    });
+
+    it('returns all segments in wildcard argument (ungreedy)', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('*', '/posts/*slug/comments', '');
+        $route = $dispatcher->dispatch('GET', '/posts/2025/01/08/post-title/comments');
+
+        expect($route)->not->toBeNull();
+        expect($route[1])->toMatchArray(['slug' => '2025/01/08/post-title']);
+    });
 })->group('dispatcher');

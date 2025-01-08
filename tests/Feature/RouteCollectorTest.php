@@ -57,4 +57,9 @@ describe('RouteCollector', function () {
         ->expect(fn() => patternData("/dynamic/:user_id", ['id' => '\d+']))
         ->toHaveNoStatics()
         ->toHaveDynamic('~^/dynamic/(?<user_id>[^/]+)$~');
+
+    it('creates dynamic pattern given route with wildcard argument')
+        ->expect(fn() => patternData("/dynamic/*user_id"))
+        ->toHaveNoStatics()
+        ->toHaveDynamic('~^/dynamic/(?<user_id>.*)$~');
 });
