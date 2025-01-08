@@ -10,16 +10,4 @@ final readonly class Route
         public readonly string $pattern,
         public readonly array $arguments,
     ) {}
-
-    /**
-     * Determines whether the given URI matches the route.
-     *
-     * @param string $uri
-     *
-     * @return boolean
-     */
-    public function match(string $uri): bool
-    {
-        return preg_match($this->pattern, $uri) !== false;
-    }
 }
