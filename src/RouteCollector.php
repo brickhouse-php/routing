@@ -51,13 +51,14 @@ class RouteCollector
     /**
      * Adds a route to the collector.
      *
-     * @param string|list<string>   $methods    HTTP method(s) which the route responds to.
-     * @param string                $route      Pattern of the route.
-     * @param mixed                 $handler    Callback for when the route is dispatched.
+     * @param string|list<string>   $methods        HTTP method(s) which the route responds to.
+     * @param string                $route          Pattern of the route.
+     * @param mixed                 $handler        Callback for when the route is dispatched.
+     * @param array<string,string>  $constraints    Array of custom constraints.
      *
      * @return void
      */
-    public function addRoute(string|array $methods, string $route, mixed $handler): void
+    public function addRoute(string|array $methods, string $route, mixed $handler, array $constraints = []): void
     {
         // Remove trailing slashes
         if ($route !== '/' && str_ends_with($route, '/')) {
@@ -75,7 +76,7 @@ class RouteCollector
                 if ($this->isRouteStatic($routeTemplate)) {
                     $this->addStaticRoute($method, $routeTemplate, $handler);
                 } else {
-                    $this->addDynamicRoute($method, $routeTemplate, $handler);
+                    $this->addDynamicRoute($method, $routeTemplate, $handler, $constraints);
                 }
             }
         }
@@ -113,15 +114,16 @@ class RouteCollector
     /**
      * Adds the given dynamic route to the collector.
      *
-     * @param string    $method
-     * @param array     $routeData
-     * @param mixed     $handler
+     * @param string                $method
+     * @param array                 $routeData
+     * @param mixed                 $handler
+     * @param array<string,string>  $constraints
      *
      * @return void
      */
-    protected function addDynamicRoute(string $method, array $routeData, mixed $handler): void
+    protected function addDynamicRoute(string $method, array $routeData, mixed $handler, array $constraints): void
     {
-        [$pattern, $arguments] = $this->buildRoutePattern($routeData);
+        [$pattern, $arguments] = $this->buildRoutePattern($routeData, $constraints);
 
         $this->dynamicRoutes[$method] ??= [];
         $this->dynamicRoutes[$method][$pattern] = new Route($method, $handler, $pattern, $arguments);
@@ -131,10 +133,11 @@ class RouteCollector
      * Builds a regex pattern for the given route.
      *
      * @param list<string|array<string,string>>     $routeData
+     * @param array<string,string>                  $constraints
      *
      * @return array{0:string,1:array<string,bool>}
      */
-    protected function buildRoutePattern(array $routeData): array
+    protected function buildRoutePattern(array $routeData, array $constraints): array
     {
         $regex = '';
         $arguments = [];
@@ -149,7 +152,7 @@ class RouteCollector
             $argumentName = key($part);
 
             /** @var string $argumentPattern */
-            $argumentPattern = current($part);
+            $argumentPattern = $constraints[$argumentName] ?? current($part);
 
             if (isset($arguments[$argumentName])) {
                 throw new RouteArgumentException(

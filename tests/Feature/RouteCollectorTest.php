@@ -3,12 +3,12 @@
 use Brickhouse\Routing\RouteCollector;
 use Brickhouse\Routing\RouteParser;
 
-function patternData(string $pattern): array
+function patternData(string $pattern, array $constraints = []): array
 {
     $parser = new RouteParser;
     $collector = new RouteCollector($parser);
 
-    $collector->addRoute('GET', $pattern, 'route');
+    $collector->addRoute('GET', $pattern, 'route', $constraints);
 
     return ['static' => $collector->static(), 'dynamic' => $collector->dynamic()];
 }
@@ -47,4 +47,14 @@ describe('RouteCollector', function () {
         ->expect(fn() => patternData("/dynamic/:id"))
         ->toHaveNoStatics()
         ->toHaveDynamic('~^/dynamic/(?<id>[^/]+)$~');
+
+    it('creates dynamic pattern given route with custom constraints')
+        ->expect(fn() => patternData("/dynamic/:id", ['id' => '\d+']))
+        ->toHaveNoStatics()
+        ->toHaveDynamic('~^/dynamic/(?<id>\d+)$~');
+
+    it('creates dynamic pattern given route without custom constraints given no match')
+        ->expect(fn() => patternData("/dynamic/:user_id", ['id' => '\d+']))
+        ->toHaveNoStatics()
+        ->toHaveDynamic('~^/dynamic/(?<user_id>[^/]+)$~');
 });

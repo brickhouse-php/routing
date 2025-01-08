@@ -113,4 +113,26 @@ describe('Dispatcher', function () {
 
         expect($route)->not->toBeNull();
     });
+
+    it('returns dynamic route with custom constraints', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/users/:id/', '', ['id' => '\d+']);
+        $route = $dispatcher->dispatch('GET', '/users/1');
+
+        expect($route)->not->toBeNull();
+    });
+
+    it('returns null given route with non-matching constraints', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/users/:id/', '', ['id' => '\d+']);
+        $route = $dispatcher->dispatch('GET', '/users/admin');
+
+        expect($route)->toBeNull();
+    });
 })->group('dispatcher');
