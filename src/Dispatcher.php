@@ -22,6 +22,11 @@ class Dispatcher
      */
     public function dispatch(string $method, string $uri): null|array
     {
+        // Remove trailing slashes
+        if ($uri !== '/' && str_ends_with($uri, '/')) {
+            $uri = rtrim($uri, '/');
+        }
+
         $staticRoutes = $this->routeCollector->static();
         if (isset($staticRoutes[$method][$uri])) {
             return [$staticRoutes[$method][$uri], []];

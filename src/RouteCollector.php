@@ -59,6 +59,11 @@ class RouteCollector
      */
     public function addRoute(string|array $methods, string $route, mixed $handler): void
     {
+        // Remove trailing slashes
+        if ($route !== '/' && str_ends_with($route, '/')) {
+            $route = rtrim($route, '/');
+        }
+
         $routeTemplates = $this->routeParser->parse($route);
 
         if (is_string($methods)) {

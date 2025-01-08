@@ -91,4 +91,26 @@ describe('Dispatcher', function () {
 
         expect($route)->toBeNull();
     });
+
+    it('returns dynamic route with matching trailing slash', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/users/:id', '');
+        $route = $dispatcher->dispatch('GET', '/users/1/');
+
+        expect($route)->not->toBeNull();
+    });
+
+    it('returns dynamic route without matching trailing slash', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/users/:id/', '');
+        $route = $dispatcher->dispatch('GET', '/users/1');
+
+        expect($route)->not->toBeNull();
+    });
 })->group('dispatcher');
