@@ -71,7 +71,7 @@ class RouteParser
 
         // If all segments in the route are strings, join them all together.
         foreach (array_keys($routes) as $idx) {
-            if (array_all($routes[$idx], fn($segment) => is_string($segment))) {
+            if (array_all($routes[$idx], fn(string|array $segment) => is_string($segment))) {
                 // @phpstan-ignore argument.type
                 $routes[$idx] = [join($routes[$idx])];
             }
