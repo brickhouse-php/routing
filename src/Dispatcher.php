@@ -29,11 +29,7 @@ class Dispatcher
 
         $dynamicRoutes = $this->routeCollector->dynamic();
         if (isset($dynamicRoutes[$method])) {
-            $dispatchedRoute = $this->dispatchDynamic(
-                $dynamicRoutes[$method],
-                $method,
-                $uri
-            );
+            $dispatchedRoute = $this->dispatchDynamic($dynamicRoutes[$method], $uri);
 
             if ($dispatchedRoute !== null) {
                 return $dispatchedRoute;
@@ -47,12 +43,11 @@ class Dispatcher
      * Undocumented function
      *
      * @param array<string,Route>   $routes
-     * @param string                $method
      * @param string                $uri
      *
      * @return null|FoundRoute
      */
-    protected function dispatchDynamic(array $routes, string $method, string $uri): null|array
+    protected function dispatchDynamic(array $routes, string $uri): null|array
     {
         foreach ($routes as $pattern => $route) {
             if (!preg_match($pattern, $uri, $matches)) {
