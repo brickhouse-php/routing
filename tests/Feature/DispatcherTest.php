@@ -80,4 +80,15 @@ describe('Dispatcher', function () {
         expect($route)->not->toBeNull();
         expect($route[1])->toMatchArray(['user_id' => 2, 'path' => 'latest.jpg']);
     });
+
+    it('returns null given mismatching dynamic route', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/users/:user_id/photos/:path', '');
+        $route = $dispatcher->dispatch('GET', '/users/2/photos/');
+
+        expect($route)->toBeNull();
+    });
 })->group('dispatcher');
