@@ -25,6 +25,10 @@
         }
     ],
     "scripts": {
+        "test": [
+            "XDEBUG_MODE=coverage pest --coverage --min=100",
+            "XDEBUG_MODE=coverage pest --type-coverage --min=100"
+        ],
         "bench": "phpbench run --report=default",
         "bench:compare": "phpbench run --report=micro-compare --group compare"
     },
