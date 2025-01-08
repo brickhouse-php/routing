@@ -2,6 +2,8 @@
 
 namespace Brickhouse\Routing;
 
+use Brickhouse\Routing\Exceptions\RouteArgumentException;
+
 /**
  * @phpstan-type    StaticRoutes    array<string,array<string,mixed>>
  * @phpstan-type    DynamicRoutes   array<string,array<string,Route>>
@@ -145,7 +147,7 @@ class RouteCollector
             $argumentPattern = current($part);
 
             if (isset($arguments[$argumentName])) {
-                throw new \RuntimeException(
+                throw new RouteArgumentException(
                     "Cannot use argument name '{$argumentName}' twice."
                 );
             }
