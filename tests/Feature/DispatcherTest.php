@@ -57,6 +57,17 @@ describe('Dispatcher', function () {
         expect($route[0])->toBeObject();
     });
 
+    it('returns complex type handler with tilde', function () {
+        $parser = new RouteParser;
+        $collector = new RouteCollector($parser);
+        $dispatcher = new Dispatcher($collector);
+
+        $collector->addRoute('GET', '/~/:channel_id', '');
+        $route = $dispatcher->dispatch('GET', '/~/1');
+
+        expect($route)->not->toBeNull();
+    });
+
     it('returns complex dynamic route', function () {
         $parser = new RouteParser;
         $collector = new RouteCollector($parser);

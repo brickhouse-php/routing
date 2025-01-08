@@ -1,5 +1,6 @@
 <?php
 
+use Brickhouse\Routing\Exceptions\RouteArgumentException;
 use Brickhouse\Routing\RouteParser;
 
 function parse(string $route): array
@@ -32,13 +33,16 @@ describe('RouteParser', function () {
         ->expect(fn() => parse("/:user_id"))
         ->toEqual([['/', ['user_id' => '[^/]+']]]);
 
-    it('allows hyphens in argument names')
-        ->expect(fn() => parse("/:user-id"))
-        ->toEqual([['/', ['user-id' => '[^/]+']]]);
+    it('disallows hyphens in argument names', fn() => parse('/:user-id'))
+        ->throws(RouteArgumentException::class);
+
+    it('allows tildes in segments')
+        ->expect(fn() => parse("/~/:channel_id"))
+        ->toEqual([['/~/', ['channel_id' => '[^/]+']]]);
 
     it('allows routes after arguments')
-        ->expect(fn() => parse("/:user-id/posts"))
-        ->toEqual([['/', ['user-id' => '[^/]+'], '/posts']]);
+        ->expect(fn() => parse("/:user_id/posts"))
+        ->toEqual([['/', ['user_id' => '[^/]+'], '/posts']]);
 
     it('yields available routes given optional argument')
         ->expect(fn() => parse("/:?slug"))
@@ -62,9 +66,9 @@ describe('RouteParser', function () {
         ]);
 
     it('allows routes after optional arguments')
-        ->expect(fn() => parse("/:?user-id/posts"))
+        ->expect(fn() => parse("/:?user_id/posts"))
         ->toEqual([
             ['/posts'],
-            ['/', ['user-id' => '[^/]+'], '/posts'],
+            ['/', ['user_id' => '[^/]+'], '/posts'],
         ]);
 });

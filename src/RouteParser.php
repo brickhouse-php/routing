@@ -2,6 +2,8 @@
 
 namespace Brickhouse\Routing;
 
+use Brickhouse\Routing\Exceptions\RouteArgumentException;
+
 class RouteParser
 {
     protected const string ROUTE_PATTERN = "/\/((?<quantifier>[\*:])(?<optional>\?)?(?<name>[\w-]+))/";
@@ -32,6 +34,12 @@ class RouteParser
             [$quantifier] = $matches['quantifier'][$i];
             [$optional] = $matches['optional'][$i];
             [$name] = $matches['name'][$i];
+
+            if (str_contains($name, '-')) {
+                throw new RouteArgumentException(
+                    "Cannot use hyphens (-) in argument name ({$name})."
+                );
+            }
 
             $optional = strlen($optional) > 0;
             $quantifierPattern = $quantifierPatterns[$quantifier];

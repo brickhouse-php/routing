@@ -62,4 +62,9 @@ describe('RouteCollector', function () {
         ->expect(fn() => patternData("/dynamic/*user_id"))
         ->toHaveNoStatics()
         ->toHaveDynamic('~^/dynamic/(?<user_id>.*)$~');
+
+    it('creates dynamic pattern given route with tilde segment')
+        ->expect(fn() => patternData("/~/:channel_id"))
+        ->toHaveNoStatics()
+        ->toHaveDynamic('~^/\~/(?<channel_id>[^/]+)$~');
 });
