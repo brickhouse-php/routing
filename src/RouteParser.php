@@ -4,7 +4,7 @@ namespace Brickhouse\Routing;
 
 class RouteParser
 {
-    protected const string ROUTE_PATTERN = "/\/((?<quantifier>[\*:])(?<name>[\w-]+))/";
+    protected const string ROUTE_PATTERN = "/\/((?<quantifier>[\*:])(?<optional>\?)?(?<name>[\w-]+))/";
 
     /**
      * Parse the given route into an array of statics and arguments.
@@ -16,7 +16,7 @@ class RouteParser
     public function parse(string $route): array
     {
         if (!preg_match_all(self::ROUTE_PATTERN, $route, $matches, PREG_OFFSET_CAPTURE)) {
-            return [$route];
+            return [[$route]];
         }
 
         $quantifierPatterns = [
@@ -24,20 +24,59 @@ class RouteParser
             '*' => '.*',
         ];
 
-        $segments = [];
+        $routes = [];
         $offset = 0;
 
         for ($i = 0; isset($matches[0][$i]); $i++) {
             [$match, $position] = $matches[1][$i];
             [$quantifier] = $matches['quantifier'][$i];
+            [$optional] = $matches['optional'][$i];
             [$name] = $matches['name'][$i];
 
-            $segments[] = substr($route, $offset, $position - $offset);
-            $segments[] = [$name => $quantifierPatterns[$quantifier]];
+            $optional = strlen($optional) > 0;
+            $quantifierPattern = $quantifierPatterns[$quantifier];
+
+            // Add the static part to the first route slot.
+            // The first route slot is the only slot without any optional parts.
+            $routes[0][] = substr($route, $offset, $position - $offset);
+
+            // If the segment isn't optional, we can add the dynamic part, as well.
+            if (!$optional) {
+                $routes[0][] = [$name => $quantifierPattern];
+            } else {
+                // If the segment is optional, copy the static parts from the first slot
+                // and add the dynamic part.
+                $routes[] = [
+                    ...$routes[0],
+                    [$name => $quantifierPattern]
+                ];
+            }
 
             $offset = $position + strlen($match);
         }
 
-        return $segments;
+        // Add any remaining statics.
+        foreach (array_keys($routes) as $idx) {
+            $static = substr($route, $offset);
+
+            $lastSegment = $routes[$idx][count($routes[$idx]) - 1];
+            if (is_string($lastSegment) && str_ends_with($lastSegment, '/')) {
+                $static = ltrim($static, '/');
+            }
+
+            if ($static !== '') {
+                $routes[$idx][] = $static;
+            }
+        }
+
+        // If all segments in the route are strings, join them all together.
+        foreach (array_keys($routes) as $idx) {
+            if (array_all($routes[$idx], fn($segment) => is_string($segment))) {
+                // @phpstan-ignore argument.type
+                $routes[$idx] = [join($routes[$idx])];
+            }
+        }
+
+        return $routes;
     }
 }

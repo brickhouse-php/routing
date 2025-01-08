@@ -57,17 +57,19 @@ class RouteCollector
      */
     public function addRoute(string|array $methods, string $route, mixed $handler): void
     {
-        $routeData = $this->routeParser->parse($route);
+        $routeTemplates = $this->routeParser->parse($route);
 
         if (is_string($methods)) {
             $methods = [$methods];
         }
 
         foreach ($methods as $method) {
-            if ($this->isRouteStatic($routeData)) {
-                $this->addStaticRoute($method, $routeData, $handler);
-            } else {
-                $this->addDynamicRoute($method, $routeData, $handler);
+            foreach ($routeTemplates as $routeTemplate) {
+                if ($this->isRouteStatic($routeTemplate)) {
+                    $this->addStaticRoute($method, $routeTemplate, $handler);
+                } else {
+                    $this->addDynamicRoute($method, $routeTemplate, $handler);
+                }
             }
         }
     }
