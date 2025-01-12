@@ -5,7 +5,7 @@ namespace Brickhouse\Routing;
 use Brickhouse\Routing\Exceptions\RouteArgumentException;
 
 /**
- * @phpstan-type    StaticRoutes    array<string,array<string,mixed>>
+ * @phpstan-type    StaticRoutes    array<string,array<string,array{0:mixed,1:array<string,null>}>>
  * @phpstan-type    DynamicRoutes   array<string,array<string,Route>>
  */
 class RouteCollector
@@ -76,10 +76,12 @@ class RouteCollector
 
         foreach ($methods as $method) {
             foreach ($routeTemplates as $routeTemplate) {
+                $argumentNames = $this->getRouteArgumentNames($routeTemplates);
+
                 if ($this->isRouteStatic($routeTemplate)) {
-                    $this->addStaticRoute($method, $routeTemplate, $handler);
+                    $this->addStaticRoute($method, $routeTemplate, $handler, $argumentNames);
                 } else {
-                    $this->addDynamicRoute($method, $routeTemplate, $handler, $constraints);
+                    $this->addDynamicRoute($method, $routeTemplate, $handler, $constraints, $argumentNames);
                 }
             }
         }
@@ -100,18 +102,20 @@ class RouteCollector
     /**
      * Adds the given static route to the collector.
      *
-     * @param string    $method
-     * @param array     $routeData
-     * @param mixed     $handler
+     * @param string                $method
+     * @param array                 $routeData
+     * @param mixed                 $handler
+     * @param array<int,string>     $argumentNames
      *
      * @return void
      */
-    protected function addStaticRoute(string $method, array $routeData, mixed $handler): void
+    protected function addStaticRoute(string $method, array $routeData, mixed $handler, array $argumentNames): void
     {
         $route = $routeData[0];
+        $arguments = array_fill_keys($argumentNames, null);
 
         $this->staticRoutes[$method] ??= [];
-        $this->staticRoutes[$method][$route] = $handler;
+        $this->staticRoutes[$method][$route] = [$handler, $arguments];
     }
 
     /**
@@ -121,12 +125,18 @@ class RouteCollector
      * @param array                 $routeData
      * @param mixed                 $handler
      * @param array<string,string>  $constraints
+     * @param array<int,string>     $argumentNames
      *
      * @return void
      */
-    protected function addDynamicRoute(string $method, array $routeData, mixed $handler, array $constraints): void
-    {
-        [$pattern, $arguments] = $this->buildRoutePattern($routeData, $constraints);
+    protected function addDynamicRoute(
+        string $method,
+        array $routeData,
+        mixed $handler,
+        array $constraints,
+        array $argumentNames
+    ): void {
+        [$pattern, $arguments] = $this->buildRoutePattern($routeData, $constraints, $argumentNames);
 
         $this->dynamicRoutes[$method] ??= [];
         $this->dynamicRoutes[$method][$pattern] = new Route($method, $handler, $pattern, $arguments);
@@ -137,10 +147,11 @@ class RouteCollector
      *
      * @param list<string|array<string,string>>     $routeData
      * @param array<string,string>                  $constraints
+     * @param array<int,string>                     $argumentNames
      *
      * @return array{0:string,1:array<string,bool>}
      */
-    protected function buildRoutePattern(array $routeData, array $constraints): array
+    protected function buildRoutePattern(array $routeData, array $constraints, array $argumentNames): array
     {
         $regex = '';
         $arguments = [];
@@ -167,8 +178,38 @@ class RouteCollector
             $regex .= "(?<{$argumentName}>" . $argumentPattern . ')';
         }
 
+        foreach ($argumentNames as $argumentName) {
+            if (!isset($arguments[$argumentName])) {
+                $arguments[$argumentName] = false;
+            }
+        }
+
         $regex = '~^' . $regex . '$~';
 
         return [$regex, $arguments];
+    }
+
+    /**
+     * Gets all the argument names defined in the given route templates.
+     *
+     * @param list<list<string|array<string,string>>>   $routeTemplates
+     *
+     * @return array<int,string>
+     */
+    protected function getRouteArgumentNames(array $routeTemplates): array
+    {
+        $argumentNames = [];
+
+        foreach ($routeTemplates as $routeTemplate) {
+            foreach ($routeTemplate as $routeSegment) {
+                if (is_string($routeSegment)) {
+                    continue;
+                }
+
+                $argumentNames += array_keys($routeSegment);
+            }
+        }
+
+        return array_unique($argumentNames);
     }
 }

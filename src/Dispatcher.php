@@ -29,11 +29,11 @@ class Dispatcher
 
         $staticRoutes = $this->routeCollector->static();
         if (isset($staticRoutes[$method][$uri])) {
-            return [$staticRoutes[$method][$uri], []];
+            return $staticRoutes[$method][$uri];
         }
 
         if (isset($staticRoutes['*'][$uri])) {
-            return [$staticRoutes['*'][$uri], []];
+            return $staticRoutes['*'][$uri];
         }
 
         $dynamicRoutes = $this->routeCollector->dynamic();
