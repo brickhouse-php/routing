@@ -103,7 +103,7 @@ describe('Dispatcher', function () {
         expect($route)->toBeNull();
     });
 
-    it('returns missing argument given optional parameter without value', function () {
+    it('returns null argument given optional parameter without value', function () {
         $parser = new RouteParser;
         $collector = new RouteCollector($parser);
         $dispatcher = new Dispatcher($collector);
@@ -112,7 +112,7 @@ describe('Dispatcher', function () {
         $route = $dispatcher->dispatch('GET', '/user');
 
         expect($route)->not->toBeNull();
-        expect($route[1])->not->toHaveKey('id');
+        expect($route[1])->toMatchArray(['id' => null]);
     });
 
     it('returns dynamic route with matching trailing slash', function () {
@@ -238,6 +238,6 @@ describe('Dispatcher', function () {
         $route = $dispatcher->dispatch('GET', '/posts');
 
         expect($route)->not->toBeNull();
-        expect($route[1])->not->toHaveKey('slug');
+        expect($route[1])->toMatchArray(['slug' => null]);
     });
 })->group('dispatcher');
