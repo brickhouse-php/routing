@@ -69,14 +69,14 @@ Parameters can also be marked as optional, allowing the route to be dispatched b
 $collector->addRoute('GET', '/user/:?id', '...');
 ```
 
-When the parameter is omitted from the matched, it will be unset in the matched route:
+When the parameter is omitted from the matched, it will be set as `null` in the matched route:
 
 ```php
 [$handler, $parameters] = $dispatcher->dispatch('GET', '/user');
 
 echo $parameters;
 
-// []
+// ['id' => null]
 ```
 
 #### Catch-all parameters
@@ -115,7 +115,7 @@ $collector->addRoute('GET', '/posts/*?slug', '...');
 // ...
 
 $dispatcher->dispatch('GET', '/posts');
-// $parameters => []
+// $parameters => ['slug' => null]
 
 $dispatcher->dispatch('GET', '/posts/a');
 // $parameters => ['slug' => 'a']
