@@ -9,10 +9,10 @@
         "brickhouse",
         "mvc"
     ],
-    "homepage": "https://github.com/maxnatamo/brickhouse-routing",
+    "homepage": "https://github.com/brickhouse-php/routing",
     "support": {
-        "issues": "https://github.com/maxnatamo/brickhouse-routing/issues",
-        "source": "https://github.com/maxnatamo/brickhouse-routing"
+        "issues": "https://github.com/brickhouse-php/routing/issues",
+        "source": "https://github.com/brickhouse-php/routing"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
