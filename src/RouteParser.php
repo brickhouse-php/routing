@@ -6,7 +6,7 @@ use Brickhouse\Routing\Exceptions\RouteArgumentException;
 
 class RouteParser
 {
-    protected const string ROUTE_PATTERN = "/\/((?<quantifier>[\*:])(?<optional>\?)?(?<name>[\w-]+))/";
+    protected const string ROUTE_PATTERN = "/((?<quantifier>[\*:])(?<optional>\?)?(?<name>[\w-]+))/";
 
     /**
      * Parse the given route into an array of statics and arguments.
